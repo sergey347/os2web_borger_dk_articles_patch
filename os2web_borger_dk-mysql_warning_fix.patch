@@ -1,0 +1,21 @@
+diff --git a/os2web_borger_dk_articles.module b/os2web_borger_dk_articles.module
+index 771d695..2100ed6 100644
+--- a/os2web_borger_dk_articles.module
++++ b/os2web_borger_dk_articles.module
+@@ -1004,7 +1004,7 @@ function _os2web_borger_dk_articles_titles_cronbatch($first_run = FALSE) {
+     // We keep the titles-list updated, and because this is used primarily
+     // to autocomplete titles on import we MUST keep it up to date, and can
+     // not have "non-availlable" article titles "ready for import"!
+-    $aid_list = implode(',', array_keys($known_ids));
++    $aid_list = array_keys($known_ids);
+     $sql = "UPDATE {os2web_borger_dk_titles} SET `ArticleStatus` = -1 WHERE `ArticleID` IN (:aids)";
+     db_query($sql, array(':aids' => $aid_list));
+ 
+@@ -1016,6 +1016,7 @@ function _os2web_borger_dk_articles_titles_cronbatch($first_run = FALSE) {
+     $result = db_query($sql, array(':aids' => $aid_list));
+ 
+     // Step through the known_ids that has not been found
++    $log = '';
+     foreach ($result as $item) {
+       $qitem = array('nid' => $item->nid, 'external_id' => $item->external_id);
+       $queue->createItem($qitem);
