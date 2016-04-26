@@ -1,5 +1,5 @@
 diff --git a/os2web_borger_dk_articles.module b/os2web_borger_dk_articles.module
-index 2100ed6..101f691 100644
+index 2100ed6..dee432c 100644
 --- a/os2web_borger_dk_articles.module
 +++ b/os2web_borger_dk_articles.module
 @@ -542,32 +542,31 @@ function os2web_borger_dk_articles_node_validate($node, $form, &$form_state) {
@@ -28,7 +28,7 @@ index 2100ed6..101f691 100644
   *   The node we are updating.
   */
 -function os2web_borger_dk_articles_update_article($nid) {
-+function os2web_borger_dk_articles_update_article(&$node) {
++function os2web_borger_dk_articles_update_article($node) {
    // First we find the external_id, and last_update time for this article
 -  $data = db_query('SELECT external_id, last_updated FROM {os2web_borger_dk_articles} WHERE nid = :nid', array(':nid' => $nid))->fetchObject();
 +  $data = db_query('SELECT external_id, last_updated FROM {os2web_borger_dk_articles} WHERE nid = :nid', array(':nid' => $node->nid))->fetchObject();
@@ -48,7 +48,7 @@ index 2100ed6..101f691 100644
   * Function _os2web_borger_dk_articles_update_node_content().
   */
 -function _os2web_borger_dk_articles_update_node_content($nid, $article) {
-+function _os2web_borger_dk_articles_update_node_content(&$node, $article) {
++function _os2web_borger_dk_articles_update_node_content($node, $article) {
    if (!empty($article['Exceptions']) || !empty($article['error'])) {
      return;
    }
@@ -66,12 +66,9 @@ index 2100ed6..101f691 100644
      ->execute();
  }
  
-@@ -1758,9 +1755,9 @@ function _os2web_borger_dk_articles_GetMunicipalityList($wsdl = 'https://www.bor
-  *
-  * @ingroup actions
+@@ -1760,7 +1757,7 @@ function _os2web_borger_dk_articles_GetMunicipalityList($wsdl = 'https://www.bor
   */
--function os2web_borger_dk_articles_update_action($node, $context = array()) {
-+function os2web_borger_dk_articles_update_action(&$node, $context = array()) {
+ function os2web_borger_dk_articles_update_action($node, $context = array()) {
    if ($node->type == 'borger_dk_article') {
 -    os2web_borger_dk_articles_update_article($node->nid);
 +    os2web_borger_dk_articles_update_article($node);
