@@ -1,8 +1,25 @@
 diff --git a/os2web_borger_dk_articles.module b/os2web_borger_dk_articles.module
-index 2100ed6..b751f7c 100644
+index 2100ed6..101f691 100644
 --- a/os2web_borger_dk_articles.module
 +++ b/os2web_borger_dk_articles.module
-@@ -555,19 +555,19 @@ function os2web_borger_dk_articles_sync_submit($form, &$form_state) {
+@@ -542,32 +542,31 @@ function os2web_borger_dk_articles_node_validate($node, $form, &$form_state) {
+  * Function os2web_borger_dk_articles_sync_submit().
+  */
+ function os2web_borger_dk_articles_sync_submit($form, &$form_state) {
+-  // Get the node->nid from the form['#node']
+-  $nid = $form['#node']->nid;
++  $node = $form['#node'];
+ 
+-  // Update the article
+-  os2web_borger_dk_articles_update_article($nid);
++  // Update the article.
++  os2web_borger_dk_articles_update_article($node);
+ 
+   drupal_set_message(t('The article has been updated with content from Borger.dk'), 'status');
+-  drupal_goto('node/' . $nid . '/edit');
++  drupal_goto('node/' . $node->nid . '/edit');
+ }
+ 
  /**
   * Update a single article with latest content from borger.dk
   *
@@ -26,7 +43,7 @@ index 2100ed6..b751f7c 100644
  }
  
  /**
-@@ -1115,12 +1115,10 @@ function _borger_dk_articles_delete_queue_callback($data) {
+@@ -1115,12 +1114,10 @@ function _borger_dk_articles_delete_queue_callback($data) {
  /**
   * Function _os2web_borger_dk_articles_update_node_content().
   */
@@ -40,7 +57,7 @@ index 2100ed6..b751f7c 100644
  
    // And we update all the node-fields with the article-values.
    $node->title = $article['title'];
-@@ -1172,7 +1170,7 @@ function _os2web_borger_dk_articles_update_node_content($nid, $article) {
+@@ -1172,7 +1169,7 @@ function _os2web_borger_dk_articles_update_node_content($nid, $article) {
    node_save($node);
    db_update('os2web_borger_dk_articles')
      ->fields(array('last_updated' => strtotime($article['last_updated'])))
@@ -49,7 +66,7 @@ index 2100ed6..b751f7c 100644
      ->execute();
  }
  
-@@ -1758,9 +1756,9 @@ function _os2web_borger_dk_articles_GetMunicipalityList($wsdl = 'https://www.bor
+@@ -1758,9 +1755,9 @@ function _os2web_borger_dk_articles_GetMunicipalityList($wsdl = 'https://www.bor
   *
   * @ingroup actions
   */
