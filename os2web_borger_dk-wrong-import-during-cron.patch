@@ -1,0 +1,63 @@
+diff --git a/os2web_borger_dk_articles.module b/os2web_borger_dk_articles.module
+index dee432c..fcafd0e 100644
+--- a/os2web_borger_dk_articles.module
++++ b/os2web_borger_dk_articles.module
+@@ -860,7 +860,8 @@ function _os2web_borger_dk_articles_cronbatch() {
+       if (empty($article['no_updates'])) {
+         // We only update articles that does not contain an error
+         if (empty($article['Exceptions']) && empty($article['error'])) {
+-          _os2web_borger_dk_articles_update_node_content($nid, $article);
++          $node = node_load($nid);
++          _os2web_borger_dk_articles_update_node_content($node, $article);
+         }
+         if (!empty($article['Exceptions'])) {
+           $any_webservice_errors = TRUE;
+@@ -1237,17 +1238,20 @@ function _os2web_borger_dk_articles_GetArticlesByIDs($borgerdk_ids = NULL, $upda
+     return array();
+   }
+ 
+-  $errors = array();
++  $errors            = array();
++  $municipality_code = variable_get('os2web_borger_dk_webservice_municipality_code', 0);
++  $params            = $municipality_code ? array('municipalityCode' => $municipality_code) : array();
++
+   // Then we can start using a new soap-client to find the article-ID from the Borger.dk-URL.
+   $client = new SoapClient($wsdl, array('exceptions' => 0));
+   if (empty($updated_after) && !empty($borgerdk_ids)) {
+     // We have a specified list of articles to fetch.
+     // First we make sure to keep requests/minute within given limits.
+     _os2web_borger_dk_articles_check_webservice_constraints();
++
+     // Building the parameter array included in the webservice request.
+-    $municipality_code = variable_get('os2web_borger_dk_webservice_municipality_code', 0);
+-    $params = $municipality_code ? array('municipalityCode' => $municipality_code) : array();
+     $params += array('articleIDs' => $borgerdk_ids);
++
+     // Then we execute our webservice-request.
+     $result_list = $client->GetArticlesByIDs($params);
+     if (is_soap_fault($result_list)) {
+@@ -1259,10 +1263,10 @@ function _os2web_borger_dk_articles_GetArticlesByIDs($borgerdk_ids = NULL, $upda
+   elseif (!empty($updated_after) && empty($borgerdk_ids)) {
+     // First we make sure to keep requests/minute within given limits.
+     _os2web_borger_dk_articles_check_webservice_constraints();
++
+     // Building the parameter array included in the webservice request.
+-    $municipality_code = variable_get('os2web_borger_dk_webservice_municipality_code', 0);
+-    $params = $municipality_code ? array('municipalityCode' => $municipality_code) : array();
+     $params += array('updatedAfter' => $updated_after);
++
+     // Then we execute our webservice-request.
+     // We have a specified date, and want all articles that have been
+     // updated since the given date.
+@@ -1280,7 +1284,10 @@ function _os2web_borger_dk_articles_GetArticlesByIDs($borgerdk_ids = NULL, $upda
+     // We have a specified date, and a specified list of article-IDs. We
+     // want all articles from that list that has also been updated since
+     // the given date.
+-    $result_list = $client->GetArticlesByIDs(array('articleIDs' => $borgerdk_ids, 'updatedAfter' => $updated_after));
++
++    $params += array('articleIDs' => $borgerdk_ids, 'updatedAfter' => $updated_after);
++
++    $result_list = $client->GetArticlesByIDs($params);
+     if (is_soap_fault($result_list)) {
+       $errors = _os2web_borger_dk_articles_translate_soap_fault(array('articleIDs' => $borgerdk_ids, 'updatedAfter' => $updated_after), $result_list->faultcode, $result_list->faultstring);
+ 
